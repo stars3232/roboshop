@@ -33,7 +33,7 @@ validation()
       fi  
 }
 
-cp mongodb.repo vim /etc/yum.repos.d/mongo.repo
+cp mongodb.repo /etc/yum.repos.d/mongo.repo
 validation $? "copying mongo.repo"
 
 dnf install mongodb-org -y &>>$LOG_FILE
