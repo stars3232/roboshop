@@ -34,18 +34,31 @@ validation()
       fi  
 }
 
-dnf module disable nginx -y
-dnf module enable nginx:1.24 -y
-dnf install nginx -y
+dnf module disable nginx -y &>>$LOG_FILE
+validation $? "Disabling nginx"
 
-systemctl enable nginx 
-systemctl start nginx 
+dnf module enable nginx:1.24 -y &>>$LOG_FILE
+validation $? "Enabling nginx"
 
+dnf install nginx -y &>>$LOG_FILE
+validation $? "Installing nginx"
 
-rm -rf /usr/share/nginx/html/* 
+systemctl enable nginx &>>$LOG_FILE
+systemctl start nginx &>>$LOG_FILE
+validation $? "Starting nginx"
 
-curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip
+rm -rf /usr/share/nginx/html/*
+validation $? "Removing default nginx content" 
 
+curl -o /tmp/frontend.zip https://roboshop-artifacts.s3.amazonaws.com/frontend-v3.zip &>>$LOG_FILE
+validation $? "Downloading Roboshop content"
 
 cd /usr/share/nginx/html 
-unzip /tmp/frontend.zip
+unzip /tmp/frontend.zip &>>$LOG_FILE
+validation $? "Adding Roboshop Content"
+
+cp $SCRIPT_PATH/nginx.conf /etc/nginx/nginx.conf
+validation $? "Copying nginx conf file"
+
+systemctl restart nginx &>>$LOG_FILE
+validation $? "Restarting nginx"
