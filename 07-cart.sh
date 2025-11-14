@@ -1,5 +1,3 @@
-#!/bin/bash
-
 userid=$(id -u)
 
 R="\e[31m"
@@ -35,13 +33,13 @@ VALIDATE(){
     fi
 }
 
-dnf module disable nodejs -y &>>$LOG_FILE
+dnf module disable nodejs -y
 VALIDATE $? "Disabling nodejs"
 
-dnf module enable nodejs:20 -y &>>$LOG_FILE
+dnf module enable nodejs:20 -y
 VALIDATE $? "Enabling nodejs"
 
-dnf install nodejs -y &>>$LOG_FILE
+dnf install nodejs -y
 VALIDATE $? "Installing nodejs"
 
 id roboshop &>>$LOG_FILE
@@ -55,33 +53,27 @@ else
 fi
 
 mkdir -p /app &>>$LOG_FILE
-VALIDATE $? "Creating /app directory"
+VALIDATE $? "Creating app directory"
 
-curl -L -o /tmp/user.zip https://roboshop-artifacts.s3.amazonaws.com/user-v3.zip &>>$LOG_FILE
-VALIDATE $? "Downloading user component content"
+curl -L -o /tmp/cart.zip https://roboshop-artifacts.s3.amazonaws.com/cart-v3.zip &>>$LOG_FILE
+VALIDATE $? "Downloading cart"
 
 rm -rf /app/*
 cd /app 
-unzip /tmp/user.zip &>>$LOG_FILE
-VALIDATE $? "Extracting user component"
+unzip /tmp/cart.zip &>>$LOG_FILE
+VALIDATE $? "Extracting cart"
 
 npm install &>>$LOG_FILE
-VALIDATE $? "Installing Dependencies"
+VALIDATE $? "Installing dependencies"
 
-cp $SCRIPT_PATH/user.service /etc/systemd/system/user.service
-VALIDATE $? "copying user.service file"
+cp $SCRIPT_PATH/cart.service /etc/systemd/system/cart.service
+VALIDATE $? "Coying .service file to setup systemd service"
 
 systemctl daemon-reload &>>$LOG_FILE
-VALIDATE $? "Reloading user"
+VALIDATE $? "Daemon reload nodejs"
 
-systemctl enable user &>>$LOG_FILE
-VALIDATE $? "Enabling user"
+systemctl enable cart &>>$LOG_FILE
+VALIDATE $? "Enabling cart"
 
-systemctl start user &>>$LOG_FILE
-VALIDATE $? "Starting user"
-
-
-
-
-
-
+systemctl start cart &>>$LOG_FILE
+VALIDATE $? "Starting cart"
